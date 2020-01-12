@@ -83,7 +83,7 @@ const Textarea = styled(TextareaAutosize)`
   width: 100%;
   resize: none;
   font-size: 14px;
-  &focus: {
+  &:focus {
     outline: none;
   }
 `;
@@ -109,7 +109,7 @@ export default ({
     <Files>
       {files &&
         files.map((file, index) => (
-          <File id={file.id} src={file.url} showing={index === currentItem} />
+          <File key={file.id} src={file.url} showing={index === currentItem} />
         ))}
     </Files>
     <Meta>
@@ -121,7 +121,7 @@ export default ({
       </Buttons>
       <FatText text={likeCount === 1 ? "1 like" : `${likeCount} likes`} />
       <Timestamp>{createdAt}</Timestamp>
-      <Textarea {...newComment} placeholder={"Add a comment..."} />
+      <Textarea placeholder={"Add a comment..."} {...newComment} />
     </Meta>
   </Post>
 );
