@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import useInput from "../../Hooks/useInput";
 import PostPresenter from "./PostPresenter";
-import { useMutation } from "react-apollo-hooks";
+import { useMutation, useQuery } from "react-apollo-hooks";
 import { TOGGLE_LIKE, ADD_COMMENT } from "./PostQueries";
 import { toast } from "react-toastify";
+import { ME } from "../../SharedQueries";
 
 const PostContainer = ({
   id,
@@ -20,8 +21,9 @@ const PostContainer = ({
   const [isLikedS, setIsLiked] = useState(isLiked);
   const [likeCountS, setLikeCount] = useState(likeCount);
   const [currentItem, setCurrentItem] = useState(0);
+  const [selfComments, setSelfComments] = useState([]);
   const comment = useInput("");
-
+  // const { data: meQuery } = useQuery(ME);
   const [toggleLikeMutation] = useMutation(TOGGLE_LIKE, {
     variables: { postId: id }
   });
@@ -49,6 +51,44 @@ const PostContainer = ({
     }
   };
 
+  const onKeyPress = async event => {
+    const { which } = event;
+    if (which === 13) {
+      event.preventDefault();
+      try {
+        const {
+          data: { addComment }
+        } = await addCommentMutation();
+        setSelfComments([...selfComments, addComment]);
+        comment.setValue("");
+      } catch {
+        toast.error("Cant send comment");
+      }
+    }
+  };
+
+  // const onKeyPressVer2 = async event => {
+  //   const { which } = event;
+  //   if (which === 13) {
+  //     event.preventDefault();
+  //     comment.setValue("");
+  //     try {
+  //       const data = await addCommentMutation();
+  //       // console.log(data);
+  //       setSelfComments([
+  //         ...selfComments,
+  //         {
+  //           id: Math.floor(Math.random() * 100),
+  //           text: comment.value,
+  //           user: { username: meQuery.me.username }
+  //         }
+  //       ]);
+  //     } catch {
+  //       toast.error("Can't send comment");
+  //     }
+  //   }
+  // };
+
   return (
     <PostPresenter
       user={user}
@@ -64,6 +104,8 @@ const PostContainer = ({
       setLikeCount={setLikeCount}
       currentItem={currentItem}
       toggleLike={toggleLike}
+      onKeyPress={onKeyPress}
+      selfComments={selfComments}
     />
   );
 };
